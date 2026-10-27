@@ -1,30 +1,7 @@
-import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
 
-class Position {
-    int row;
-    int col;
-
-    public Position(int row, int col) {
-        this.row = row;
-        this.col = col;
-    }
-
-    public boolean isValid() {
-        return row >= 0 && row < 8 && col >= 0 && col < 8;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        Position position = (Position) obj;
-        return row == position.row && col == position.col;
-    }
-}
-
-class Board {
+public class Board {
     private char[][] grid = new char[8][8];
     private Position foxPos;
     private List<Position> houndPositions;
@@ -78,20 +55,13 @@ class Board {
         Position to = new Position(toR, toC);
 
         if (!from.isValid() || !to.isValid()) {
-            System.out.println("Hiba: A megadott mező kívül esik a táblán!");
             return false;
         }
 
         if (isFoxTurn) {
-            if (!from.equals(foxPos)) {
-                System.out.println("Hiba: Most a róka jön ('F')!");
+            if (!from.equals(foxPos) || !isValidFoxMove(from, to)) {
                 return false;
             }
-            if (!isValidFoxMove(from, to)) {
-                System.out.println("Hiba: Érvénytelen róka lépés!");
-                return false;
-            }
-
             grid[foxPos.row][foxPos.col] = '.';
             foxPos = to;
             grid[foxPos.row][foxPos.col] = 'F';
@@ -104,12 +74,7 @@ class Board {
                 }
             }
 
-            if (selectedHound == null) {
-                System.out.println("Hiba: Ezen a helyen nincs saját kutyád ('H')!");
-                return false;
-            }
-            if (!isValidHoundMove(from, to)) {
-                System.out.println("Hiba: Érvénytelen kutya lépés!");
+            if (selectedHound == null || !isValidHoundMove(from, to)) {
                 return false;
             }
 
@@ -155,49 +120,5 @@ class Board {
             }
         }
         return moves;
-    }
-}
-
-public class FoxAndHoundsGame {
-    public static void main(String[] args) {
-        Board board = new Board();
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("=== Fox and Hounds ===");
-        System.out.println("Jelölések: 'F' = Róka, 'H' = Kutya, '.' = Üres mező\n");
-
-        while (true) {
-            board.printBoard();
-
-            String status = board.checkGameStatus();
-            if (status.equals("FOX_WIN")) {
-                System.out.println("A Róka nyert!");
-                break;
-            } else if (status.equals("HOUNDS_WIN")) {
-                System.out.println("A Kutyák nyertek!");
-                break;
-            }
-
-            if (board.isFoxTurn()) {
-                System.out.println("A RÓKA következik.");
-            } else {
-                System.out.println("A KUTYÁK következnek.");
-            }
-
-            System.out.print("Lépés (fromR fromC toR toC): ");
-            try {
-                int fromR = scanner.nextInt();
-                int fromC = scanner.nextInt();
-                int toR = scanner.nextInt();
-                int toC = scanner.nextInt();
-
-                board.move(fromR, fromC, toR, toC);
-            } catch (Exception e) {
-                System.out.println("Hibás bemenet!");
-                scanner.nextLine();
-            }
-            System.out.println();
-        }
-        scanner.close();
     }
 }
